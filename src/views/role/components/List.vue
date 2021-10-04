@@ -29,7 +29,12 @@
                                 roleId: scope.row.id
                             }
                         })">分配菜单</el-button>
-                        <el-button type="text" size="small">分配资源</el-button>
+                        <el-button type="text" size="small" @click="$router.push({
+                            name: 'alloc-resource',
+                            params: {
+                                roleId: scope.row.id
+                            }
+                        })">分配资源</el-button>
                         <el-button type="text" size="small" @click="handleEdit(scope.row)">编辑</el-button>
                         <el-button type="text" size="small" @click="handleDelete(scope.row)">删除</el-button>
                     </template>
