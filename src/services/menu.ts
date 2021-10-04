@@ -39,3 +39,31 @@ export const deleteMenu = (id: number) => {
     url: `/boss/menu/${id}`
   })
 }
+
+// 获取树形结构菜单列表
+export const getMenuNodeList = () => {
+  return request({
+    method: 'GET',
+    url: '/boss/menu/getMenuNodeList'
+  })
+}
+
+// 保存树形菜单数据
+export const allocateRoleMenus = (data: any) => {
+  return request({
+    method: 'POST',
+    url: '/boss/menu/allocateRoleMenus',
+    data
+  })
+}
+
+// 获取角色拥有的菜单
+export const getRoleMenus = (roleId: string | number) => {
+  return request({
+    method: 'GET',
+    url: '/boss/menu/getRoleMenus',
+    params: {
+      roleId
+    }
+  })
+}

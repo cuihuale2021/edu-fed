@@ -23,7 +23,12 @@
                 <el-table-column prop="createdTime" label="添加时间"></el-table-column>
                 <el-table-column label="操作">
                     <template slot-scope="scope">
-                        <el-button type="text" size="small" @click="handleMenu(scope.row)">分配菜单</el-button>
+                        <el-button type="text" size="small" @click="$router.push({
+                            name: 'alloc-menu',
+                            params: {
+                                roleId: scope.row.id
+                            }
+                        })">分配菜单</el-button>
                         <el-button type="text" size="small">分配资源</el-button>
                         <el-button type="text" size="small" @click="handleEdit(scope.row)">编辑</el-button>
                         <el-button type="text" size="small" @click="handleDelete(scope.row)">删除</el-button>
@@ -41,7 +46,7 @@
                 :diabled="isLoading"
             ></el-pagination>
         </el-card>
-        <el-dialog title="添加角色" :visible.sync="dialogVisible" width="30%">
+        <el-dialog :title="isEdit ? '编辑角色' : '添加角色'" :visible.sync="dialogVisible" width="30%">
             <create-or-edit
                 v-if="dialogVisible"
                 @success="handleSuccess"
@@ -134,10 +139,6 @@ export default Vue.extend({
         this.$message.success('删除成功')
         this.loadRoles()
       }
-    },
-    // 分配菜单
-    handleMenu (val: string) {
-      console.log(val)
     },
     // 角色添加成功
     handleSuccess (val: string) {
