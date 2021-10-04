@@ -75,7 +75,7 @@
                             type="text"
                             size="small"
                             @click="disableStatus(scope.row)">禁用</el-button>
-                        <el-button type="text" size="small" @click="dialogVisible = true">分配角色</el-button>
+                        <el-button type="text" size="small" @click="handleSelectRole(scope.row)">分配角色</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -95,17 +95,17 @@
             :visible.sync="dialogVisible"
             width="30%"
             >
-            <el-select v-model="value1" multiple clearable placeholder="请选择">
+            <el-select v-model="roleIds" multiple clearable placeholder="请选择角色">
                 <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+                v-for="item in roles"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
                 </el-option>
             </el-select>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                <el-button type="primary" @click="onSave">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -114,6 +114,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { getUserPages, forbidUser, activateUser } from '@/services/user'
+import { getAllRoles, allocUserRoles, getUserRoles } from '@/services/role'
 import { Form } from 'element-ui'
 export default Vue.extend({
   name: 'UserList',
@@ -130,23 +131,9 @@ export default Vue.extend({
       totalCount: 0,
       isLoading: false,
       dialogVisible: false,
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
-      value1: []
+      roles: [],
+      roleIds: [],
+      userId: ''
     }
   },
   created () {
@@ -210,6 +197,30 @@ export default Vue.extend({
     async enableStatus (item: any) {
       const { data } = await activateUser(item.id)
       console.log(data)
+    },
+    // 分配角色
+    async handleSelectRole (item: any) {
+      this.userId = item.id
+      // 获取全部角色
+      const { data } = await getAllRoles()
+      if (data.code === '000000') {
+        this.roles = data.data
+        this.dialogVisible = true
+      }
+      // 获取该用户的角色
+      const { data: { data: userRoles } } = await getUserRoles(item.id)
+      this.roleIds = userRoles.map((item: any) => item.id)
+    },
+    // 提交分配的角色
+    async onSave () {
+      const { data } = await allocUserRoles({
+        userId: this.userId,
+        roleIdList: this.roleIds
+      })
+      if (data.code === '000000') {
+        this.$message.success('操作成功')
+        this.dialogVisible = false
+      }
     }
   }
 })
