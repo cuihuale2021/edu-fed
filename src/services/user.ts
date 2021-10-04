@@ -26,3 +26,32 @@ export const getUserInfo = () => {
     url: '/front/user/getInfo'
   })
 }
+
+// 分页查询用户信息
+export const getUserPages = (data: any) => {
+  return request({
+    method: 'POST',
+    url: '/boss/user/getUserPages',
+    data
+  })
+}
+
+// 启用用户
+export const activateUser = (userId: string | number) => {
+  return request({
+    method: 'GET',
+    url: '/boss/user/enableUser',
+    params: {
+      userId
+    }
+  })
+}
+
+// 封禁用户
+export const forbidUser = (data: any) => {
+  return request({
+    method: 'POST',
+    url: '/boss/user/forbidUser',
+    data: qs.stringify(data)
+  })
+}
