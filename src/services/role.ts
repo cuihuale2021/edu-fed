@@ -30,3 +30,11 @@ export const createOrUpdate = (data: any) => {
     data
   })
 }
+
+// 查询某个角色
+export const getRoleById = (id: string | number) => {
+  return request({
+    method: 'GET',
+    url: `/boss/role/${id}`
+  })
+}

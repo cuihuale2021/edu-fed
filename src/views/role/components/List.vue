@@ -14,7 +14,7 @@
                     </el-form-item>
                 </el-form>
             </div>
-            <el-button>添加角色</el-button>
+            <el-button @click="handleAdd">添加角色</el-button>
             <el-table :data="roles" style="width: 100%" v-loading="isLoading">
                 <el-table-column type="index" label="编号" width="180"></el-table-column>
                 <el-table-column prop="name" label="角色名称"></el-table-column>
@@ -23,10 +23,10 @@
                 <el-table-column prop="createdTime" label="添加时间"></el-table-column>
                 <el-table-column label="操作">
                     <template slot-scope="scope">
-                        <el-button @click="handleMenu(scope.row)" type="text" size="small">分配菜单</el-button>
+                        <el-button type="text" size="small" @click="handleMenu(scope.row)">分配菜单</el-button>
                         <el-button type="text" size="small">分配资源</el-button>
-                        <el-button type="text" size="small">编辑</el-button>
-                        <el-button type="text" size="small" @click="delRole(scope.row)">删除</el-button>
+                        <el-button type="text" size="small" @click="handleEdit(scope.row)">编辑</el-button>
+                        <el-button type="text" size="small" @click="handleDelete(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -41,8 +41,14 @@
                 :diabled="isLoading"
             ></el-pagination>
         </el-card>
-        <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
-            <create-or-edit />
+        <el-dialog title="添加角色" :visible.sync="dialogVisible" width="30%">
+            <create-or-edit
+                v-if="dialogVisible"
+                @success="handleSuccess"
+                @cancel="dialogVisible  = false"
+                :is-edit="isEdit"
+                :roleId="roleId"
+            />
         </el-dialog>
     </div>
 </template>
@@ -64,7 +70,9 @@ export default Vue.extend({
       roles: [],
       totalCount: 0,
       isLoading: false,
-      dialogVisible: true
+      dialogVisible: false,
+      isEdit: false,
+      roleId: ''
     }
   },
   created () {
@@ -74,6 +82,7 @@ export default Vue.extend({
     CreateOrEdit
   },
   methods: {
+    // 获取角色列表
     async loadRoles () {
       this.isLoading = true
       const { data } = await getRoles(this.form)
@@ -83,46 +92,58 @@ export default Vue.extend({
       }
       this.isLoading = false
     },
+    // 查询
     onSubmit () {
-    //   console.log('submit!')
       this.form.current = 1
       this.loadRoles()
     },
+    // 重置查询条件
     onReset () {
-    //   console.log('reset!')
       (this.$refs.form as Form).resetFields()
       this.form.current = 1
       this.loadRoles()
     },
+    // 分页条数改变
     handleSizeChange (val: number) {
     //   console.log(`每页 ${val} 条`)
       this.form.size = val
       this.form.current = 1
       this.loadRoles()
     },
+    // 当前页改变
     handleCurrentChange (val: number) {
     //   console.log(`当前页: ${val}`)
       this.form.current = val
       this.loadRoles()
     },
-    handleMenu (val: string) {
-      console.log(val)
+    // 添加角色
+    handleAdd () {
+      this.dialogVisible = true
+      this.isEdit = false
     },
-    async delRole (item: { id: string|number }) {
+    // 编辑角色
+    handleEdit (item: any) {
+      this.isEdit = true
+      this.dialogVisible = true
+      this.roleId = item.id
+    },
+    // 删除角色
+    async handleDelete (item: { id: string|number }) {
       const { data } = await deleteRole(item.id)
       if (data.code === '000000') {
         this.$message.success('删除成功')
         this.loadRoles()
       }
     },
-    handleClose () {
-      this.$confirm('确认关闭？')
-        .then(() => {
-          console.log('确认')
-        })
-        .catch(() => {
-          console.log('确认')
-        })
+    // 分配菜单
+    handleMenu (val: string) {
+      console.log(val)
+    },
+    // 角色添加成功
+    handleSuccess (val: string) {
+      this.$message.success(val)
+      this.dialogVisible = false
+      this.loadRoles()
     }
   }
 })
